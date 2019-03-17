@@ -29,11 +29,13 @@ func main() {
 		cli.IntFlag{
 			Name:        "year",
 			Usage:       "copyright year",
+			Value:       time.Now().Year(),
 			Destination: &year,
 		},
 		cli.StringFlag{
 			Name:        "output",
 			Usage:       "output path",
+			Value:       "LICENSE",
 			Destination: &output,
 		},
 	}
