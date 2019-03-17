@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli"
@@ -15,6 +18,35 @@ func generate(license string, name string, year int, output string) {
 	println(output)
 }
 
+func gitconfig(option string) string {
+	buf, err := exec.Command("git", "config", "--"+option, "user.name").Output()
+	if err != nil {
+		return ""
+	}
+	return string(buf)
+}
+
+// get author name from gitconfig
+// local -> global -> system
+func defaultAuthor() string {
+	name := gitconfig("local")
+	if name != "" {
+		return strings.TrimSpace(name)
+	}
+
+	name = gitconfig("global")
+	if name != "" {
+		return strings.TrimSpace(name)
+	}
+
+	name = gitconfig("system")
+	if name != "" {
+		return strings.TrimSpace(name)
+	}
+
+	panic(errors.New("could not detect username"))
+}
+
 func main() {
 	var author string
 	var year int
@@ -24,6 +56,7 @@ func main() {
 		cli.StringFlag{
 			Name:        "author",
 			Usage:       "author name",
+			Value:       defaultAuthor(),
 			Destination: &author,
 		},
 		cli.IntFlag{
