@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -10,6 +11,13 @@ import (
 
 	"github.com/urfave/cli"
 )
+
+type license struct {
+	Alias string
+	Name  string
+}
+
+const usage = "Generate a LICENSE file as %s"
 
 func generate(license string, name string, year int, output string) {
 	println(license)
@@ -52,6 +60,58 @@ func main() {
 	var year int
 	var output string
 
+	licenses := []license{
+		license{
+			Alias: "agpl",
+			Name:  "GNU AGPLv3",
+		},
+		license{
+			Alias: "apache",
+			Name:  "Apache License 2.0",
+		},
+		license{
+			Alias: "bsd2",
+			Name:  "BSD 2-Clause \"Simplified\" License",
+		},
+		license{
+			Alias: "bsd3",
+			Name:  "BSD 3-Clause \"New\" or \"Revised\" License",
+		},
+		license{
+			Alias: "eclipse",
+			Name:  "Eclipse Public License 2.0",
+		},
+		license{
+			Alias: "gpl",
+			Name:  "GNU GPLv3",
+		},
+		license{
+			Alias: "lgpl",
+			Name:  "GNU LGPLv3",
+		},
+		license{
+			Alias: "lgpl2",
+			Name:  "GNU LGPLv2.1",
+		},
+		license{
+			Alias: "mit",
+			Name:  "MIT License",
+		},
+		license{
+			Alias: "mpl",
+			Name:  "Mozilla Public License 2.0",
+		},
+		license{
+			Alias: "unlicense",
+			Name:  "The Unlicense",
+		},
+	}
+
+	action := func(c *cli.Context) error {
+		generate(c.Command.Name, author, year, output)
+		return nil
+	}
+
 	flags := []cli.Flag{
 		cli.StringFlag{
 			Name:        "author",
@@ -73,21 +133,22 @@ func main() {
 		},
 	}
 
+	commands := []cli.Command{}
+	for _, license := range licenses {
+		command := cli.Command{
+			Name:   license.Alias,
+			Usage:  fmt.Sprintf(usage, license.Name),
+			Flags:  flags,
+			Action: action,
+		}
+		commands = append(commands, command)
+	}
+
 	app := cli.NewApp()
 	app.Name = "gl"
 	app.Usage = "Generate a LICENSE file for your project"
 	app.UsageText = "gl <license> [--author author] [--year year]"
-	app.Commands = []cli.Command{
-		cli.Command{
-			Name:  "mit",
-			Usage: "Generate LICENSE file as MIT",
-			Flags: flags,
-			Action: func(c *cli.Context) error {
-				generate("mit", author, year, output)
-				return nil
-			},
-		},
-	}
+	app.Commands = commands
 
 	err := app.Run(os.Args)
 	if err != nil {
