@@ -3,12 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/packr/v2"
 	"github.com/urfave/cli"
 )
 
@@ -19,11 +23,36 @@ type license struct {
 
 const usage = "Generate a LICENSE file as %s"
 
+func getTemplate(license string) string {
+	box := packr.New("License Templates", "./templates")
+	txt, err := box.FindString(license + ".txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return txt
+}
+
+func isExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
+}
+
 func generate(license string, name string, year int, output string) {
-	println(license)
-	println(name)
-	println(year)
-	println(output)
+	path, err := filepath.Abs(filepath.Clean(output))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if isExists(path) {
+		log.Println("LICENSE file already exists.")
+		return
+	}
+
+	txt := getTemplate(license)
+	txt = strings.Replace(txt, "<YEAR>", strconv.Itoa(year), 1)
+	txt = strings.Replace(txt, "<AUTHOR>", name, 1)
+
+	ioutil.WriteFile(path, []byte(txt), os.ModePerm)
 }
 
 func gitconfig(option string) string {
@@ -128,7 +157,7 @@ func main() {
 		cli.StringFlag{
 			Name:        "output",
 			Usage:       "output path",
-			Value:       "LICENSE",
+			Value:       "./LICENSE",
 			Destination: &output,
 		},
 	}
