@@ -21,7 +21,10 @@ type license struct {
 	Name  string
 }
 
-const usage = "Generate a LICENSE file as %s"
+const (
+	usage   = "Generate a LICENSE file as %s"
+	version = "0.1.0"
+)
 
 func getTemplate(license string) string {
 	box := packr.New("License Templates", "./templates")
@@ -176,8 +179,10 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gl"
 	app.Usage = "Generate a LICENSE file for your project"
-	app.UsageText = "gl <license> [--author author] [--year year]"
+	app.UsageText = "gl <license> [--author author] [--year year] [--output path]"
 	app.Commands = commands
+	app.Author = "Fuyuno Mikazuki <https://github.com/mika-f>"
+	app.Version = version
 
 	err := app.Run(os.Args)
 	if err != nil {
