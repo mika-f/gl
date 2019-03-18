@@ -7,7 +7,7 @@ Generate a LICENSE file for your project.
 ## Install
 
 ```
-$ go install github.com/mika-f/gl/cmd/gl
+$ go get github.com/mika-f/gl/cmd/gl
 ```
 
 ## Description
