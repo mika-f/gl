@@ -10,7 +10,18 @@ Generate a LICENSE file for your project.
 $ go install github.com/mika-f/gl/cmd/gl
 ```
 
-## Usage
+## Description
+
+Author and Year are automatically obtained from the your computer.
+
+| Key    | Default Value                        |
+| ------ | ------------------------------------ |
+| Author | gitconfig (local, global and system) |
+| Year   | current datetime                     |
+| Output | `./LICENSE`                          |
+
+
+## Information
 
 ```
 NAME:
